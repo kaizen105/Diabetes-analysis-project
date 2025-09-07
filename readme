@@ -1,64 +1,120 @@
-# 🩺 Diabetes Readmission Prediction
+🩺 Diabetes Readmission Prediction
 
-This project explores the **US Diabetes Readmission dataset (~100k encounters, ~70k patients)** to understand hospital readmission patterns and build a predictive model. It covers the full data science pipeline: **data preparation, exploratory analysis, modeling, deployment, SQL insights, and Power BI dashboarding**.
+This project explores the **US Diabetes Readmission dataset (~100k encounters, ~70k patients)** to analyze hospital readmission patterns and build a predictive model. It covers the full data science workflow: **data preparation, exploratory analysis, modeling, deployment, SQL insights, and dashboarding**.
+
+---
+
+ 📂 Repository Structure
+
+```
+
+diabetes-readmission/
+│
+├── datasets/                 
+│   ├── diabetic_data.csv      # Raw and processed datasets
+│   ├── diabetes_data_ml.csv   # For ML
+│   └── diabetic_data_clean.csv # For Power BI
+|   |__ IDS_mapping.csv        #mapping
+│
+├── notebooks/                # Jupyter notebooks
+│   ├── 1\ml_model.ipynb
+│   ├── 2diabetesproject.ipynb
+│   ├── 3\_Evaluate.py
+│   └── diabetes_readmission.pkl        # Logistic Regression (final model)
+│
+├── streamlit\_app/
+│   └── interface.py          # Streamlit deployment script
+│
+├── sql/
+│   └── queries  # 10 SQL queries for insights
+│
+├── powerbi/
+│   └── dashboard        # Power BI dashboard file
+│
+├── requirements.txt          # Dependencies
+└── README.md
+
+````
 
 ---
 
 ## 🔄 Workflow
 
-1. **Data Preparation**
-   - Cleaned dataset by handling nulls and mistyped values (e.g., `?`).
-   - Performed feature engineering, encoding, and fixed outliers/skewness.
-   - Generated two datasets:
-     - **Encoded dataset** → for machine learning.
-     - **Categorical dataset** → for Power BI dashboard.
+### 1. Data Preparation
+- Cleaned nulls and mistyped values (e.g., `?`).  
+- Performed feature engineering & encoding.  
+- Fixed outliers and skewness.  
+- Generated two datasets:
+  - **Encoded dataset** → used for ML models.  
+  - **Categorical dataset** → used for Power BI visualizations.  
 
-2. **Exploratory Data Analysis (EDA)**
-   - Conducted univariate, bivariate, and multivariate analysis.
-   - Visualized patterns using histograms, bar charts, boxplots, and correlation heatmaps.
-   - Key Insights:
-     - Median hospital stay: **4 days** (most between 2–6 days).
-     - Patients prescribed an average of **16 medications**, with some up to 81.
-     - Most patients had **0 prior visits**, but a few had extremely high utilization (42 outpatient, 76 emergency, 21 inpatient visits).
+### 2. Exploratory Data Analysis (EDA)
+- Univariate, bivariate, and multivariate analysis.  
+- Visualizations: histograms, bar plots, boxplots, correlation heatmap.  
+- **Key findings:**
+  - Median hospital stay: **4 days** (mostly 2–6 days).  
+  - Average **16 medications** prescribed per patient (up to 81).  
+  - Most patients had no prior visits, but some had very high utilization (42 outpatient, 76 emergency, 21 inpatient).  
 
-3. **Modeling**
-   - Trained Logistic Regression, Decision Tree, Random Forest, and XGBoost on both unbalanced and balanced data.
-   - Used **SMOTE** to address class imbalance and hyperparameter tuning.
-   - **Random Forest** achieved near-perfect scores (**F1 ≈ 0.99**) but showed signs of **overfitting**.
-   - **Logistic Regression (balanced with SMOTE)** gave more modest but **stable and interpretable results** (AUC ≈ 0.61, F1 ≈ 0.16).
-   - ✅ **Final Model Deployed:** Logistic Regression (balanced with SMOTE), saved as `best_model.pkl`.
+### 3. Modeling
+- Algorithms tested: Logistic Regression, Decision Tree, Random Forest, XGBoost.  
+- Addressed imbalance using **SMOTE**.  
+- Results:
+  - **Random Forest** → F1 ≈ 0.99 but overfitted.  
+  - **Logistic Regression (balanced with SMOTE)** → more stable, interpretable.  
+- ✅ **Final Model Deployed:** Logistic Regression (SMOTE balanced).  
 
-4. **Deployment**
-   - Built a **Streamlit web app** for live predictions.  
-   - [Insert app link here]
+### 4. Deployment
+- Built a **Streamlit web app** for predictions.  
+- Run locally:  
+  ```bash
+  streamlit run streamlit_app/interface.py
+````
 
-5. **SQL Analysis**
-   - Designed **10 SQL queries** to extract business insights from the dataset.  
-   - Condensed findings:
-     - **Readmission Rate:** ~35% of patients were readmitted (within or after 30 days).  
-     - **Age Patterns:** Higher readmission rates in older age groups, especially 60+.  
-     - **Insulin Impact:** Patients prescribed insulin showed higher likelihood of readmission.  
-     - **Diagnosis Trends:** Chronic conditions like circulatory and respiratory diseases were most associated with frequent readmissions.  
-     - **Hospital Utilization:** Patients with multiple prior visits (emergency or inpatient) had significantly higher readmission probability.
+https://diabetes-analysis-project-mfz5kcrwnusng4wztuzydk.streamlit.app/
 
-6. **Dashboarding**
-   - Created an **interactive Power BI dashboard** to visualize readmission trends, age distributions, diagnosis patterns, and KPIs.  
-   - [Insert screenshot here]
+### 5. SQL Insights
 
+Wrote 10 SQL queries to answer analytical questions.
+**Key insights extracted:**
+
+* Overall **readmission rate: \~16%**.
+* **60–80 age group** had the highest share of readmissions.
+* **Circulatory & respiratory diseases** strongly associated with readmissions.
+* **Emergency admissions** were the main source of readmitted patients.
+* Gender split: **Male \~46%, Female \~54%**.
+
+### 6. Dashboarding
+
+* Designed an **interactive Power BI dashboard** to visualize:
+
+  * Patient demographics
+  * Readmission trends
+  * Diagnosis distribution
+  * Admission sources
+* Dashboard file: `powerbi/dashboard.pbix`
 ---
 
 ## ⚙️ Tech Stack
 
-- **Python**: Pandas, NumPy, Scikit-learn, Imbalanced-learn, Matplotlib, Seaborn  
-- **Streamlit** for deployment  
-- **SQL** for querying and insights  
-- **Power BI** for dashboarding  
+* **Python**: Pandas, NumPy, Scikit-learn, Imbalanced-learn, Matplotlib, Seaborn
+* **Deployment**: Streamlit
+* **Database/Analysis**: SQL
+* **Dashboarding**: Power BI
 
 ---
 
-## ▶️ How to Run
+## 📊 Results
 
-1. Clone repo  
-   ```bash
-   git clone https://github.com/yourusername/diabetes-readmission.git
-   cd diabetes-readmission
+* **Final Model**: Logistic Regression (balanced with SMOTE).
+* **Performance**: AUC ≈ 0.61, F1 ≈ 0.16 (test set).
+* **SQL + Dashboard** provided insights into readmission drivers (age, diagnosis, insulin use, hospital source).
+---
+
+## 🔮 Future Improvements
+
+* Add model explainability (SHAP / LIME).
+* Deploy to cloud (Heroku / AWS).
+* Improve feature engineering (grouping diagnoses, medications).
+
+```
