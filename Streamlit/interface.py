@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
@@ -149,16 +150,19 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Get directory of this script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Cache data loading functions
 @st.cache_data
 def load_model_data():
     """Load the ML-ready dataset from the repository."""
     try:
-        df = pd.read_csv("datasets/diabetes_data_ml.csv")
+        path = os.path.join(BASE_DIR, "..", "datasets", "diabetes_data_ml.csv")
+        df = pd.read_csv(path)
         return df
     except FileNotFoundError:
-        st.error("Error: 'diabetes_data_ml.csv' not found. Please ensure it's in the 'datasets' folder.")
+        st.error("❌ 'diabetes_data_ml.csv' not found in datasets/")
         return None
     except Exception as e:
         st.error(f"Error loading model data: {e}")
@@ -168,28 +172,29 @@ def load_model_data():
 def load_insights_data():
     """Load the insights dataset from the repository."""
     try:
-        df = pd.read_csv("datasets/diabetic_data_clean.csv")
+        path = os.path.join(BASE_DIR, "..", "datasets", "diabetic_data_clean.csv")
+        df = pd.read_csv(path)
         return df
     except FileNotFoundError:
-        st.error("Error: 'diabetic_data_clean.csv' not found. Please ensure it's in the 'datasets' folder.")
+        st.error("❌ 'diabetic_data_clean.csv' not found in datasets/")
         return None
     except Exception as e:
         st.error(f"Error loading insights data: {e}")
         return None
 
-# CRITICAL CHANGE: Use st.cache_resource for large binary models
+# Use st.cache_resource for models
 @st.cache_resource
 def load_model():
     """Load the trained pipeline model from the repository."""
-    path = "notebook/diabetes_readmission.pkl"
     try:
+        path = os.path.join(BASE_DIR, "..", "notebook", "diabetes_readmission.pkl")
         model = joblib.load(path)
-        if not hasattr(model, 'predict'):
+        if not hasattr(model, "predict"):
             st.error("❌ Loaded object is not a valid model.")
             return None
         return model
     except FileNotFoundError:
-        st.error("Error: 'diabetes_readmission.pkl' not found. Please ensure it's in the 'models' folder.")
+        st.error("❌ 'diabetes_readmission.pkl' not found in notebook/")
         return None
     except Exception as e:
         st.error(f"Error loading model: {e}")
