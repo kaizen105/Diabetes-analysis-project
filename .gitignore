@@ -1,0 +1,29 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Jupyter notebooks
+*.ipynb
+
+# Environment files
+.env
+*.env
+
+# Dataset files
+datasets/*.csv
+
+# Logs and outputs
+*.log
+*.out
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# IDE configs
+.vscode/
+.idea/
