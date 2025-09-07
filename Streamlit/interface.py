@@ -18,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for better styling (your original CSS is good, so I've kept it)
+# Custom CSS for better styling
 st.markdown("""
 <style>
     /* Header */
