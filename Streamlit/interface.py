@@ -155,7 +155,7 @@ st.markdown("""
 def load_model_data():
     """Load the ML-ready dataset from the repository."""
     try:
-        df = pd.read_csv("../datasets/diabetes_data_ml.csv")
+        df = pd.read_csv("datasets/diabetes_data_ml.csv")
         return df
     except FileNotFoundError:
         st.error("Error: 'diabetes_data_ml.csv' not found. Please ensure it's in the 'datasets' folder.")
@@ -168,7 +168,7 @@ def load_model_data():
 def load_insights_data():
     """Load the insights dataset from the repository."""
     try:
-        df = pd.read_csv("../datasets/diabetic_data_clean.csv")
+        df = pd.read_csv("datasets/diabetic_data_clean.csv")
         return df
     except FileNotFoundError:
         st.error("Error: 'diabetic_data_clean.csv' not found. Please ensure it's in the 'datasets' folder.")
@@ -181,7 +181,7 @@ def load_insights_data():
 @st.cache_resource
 def load_model():
     """Load the trained pipeline model from the repository."""
-    path = "../notebook/diabetes_readmission.pkl"
+    path = "notebook/diabetes_readmission.pkl"
     try:
         model = joblib.load(path)
         if not hasattr(model, 'predict'):
