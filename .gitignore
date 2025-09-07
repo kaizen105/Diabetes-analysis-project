@@ -27,10 +27,6 @@ venv/
 # *.ipynb
 .ipynb_checkpoints/
 
-# Datasets and large files
-# Uncomment if you want to ignore the entire datasets folder
-datasets/
-
 # Logs and outputs
 *.log
 *.out
