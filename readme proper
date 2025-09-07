@@ -1,0 +1,64 @@
+# 🩺 Diabetes Readmission Prediction
+
+This project explores the **US Diabetes Readmission dataset (~100k encounters, ~70k patients)** to understand hospital readmission patterns and build a predictive model. It covers the full data science pipeline: **data preparation, exploratory analysis, modeling, deployment, SQL insights, and Power BI dashboarding**.
+
+---
+
+## 🔄 Workflow
+
+1. **Data Preparation**
+   - Cleaned dataset by handling nulls and mistyped values (e.g., `?`).
+   - Performed feature engineering, encoding, and fixed outliers/skewness.
+   - Generated two datasets:
+     - **Encoded dataset** → for machine learning.
+     - **Categorical dataset** → for Power BI dashboard.
+
+2. **Exploratory Data Analysis (EDA)**
+   - Conducted univariate, bivariate, and multivariate analysis.
+   - Visualized patterns using histograms, bar charts, boxplots, and correlation heatmaps.
+   - Key Insights:
+     - Median hospital stay: **4 days** (most between 2–6 days).
+     - Patients prescribed an average of **16 medications**, with some up to 81.
+     - Most patients had **0 prior visits**, but a few had extremely high utilization (42 outpatient, 76 emergency, 21 inpatient visits).
+
+3. **Modeling**
+   - Trained Logistic Regression, Decision Tree, Random Forest, and XGBoost on both unbalanced and balanced data.
+   - Used **SMOTE** to address class imbalance and hyperparameter tuning.
+   - **Random Forest** achieved near-perfect scores (**F1 ≈ 0.99**) but showed signs of **overfitting**.
+   - **Logistic Regression (balanced with SMOTE)** gave more modest but **stable and interpretable results** (AUC ≈ 0.61, F1 ≈ 0.16).
+   - ✅ **Final Model Deployed:** Logistic Regression (balanced with SMOTE), saved as `best_model.pkl`.
+
+4. **Deployment**
+   - Built a **Streamlit web app** for live predictions.  
+   - [Insert app link here]
+
+5. **SQL Analysis**
+   - Designed **10 SQL queries** to extract business insights from the dataset.  
+   - Condensed findings:
+     - **Readmission Rate:** ~35% of patients were readmitted (within or after 30 days).  
+     - **Age Patterns:** Higher readmission rates in older age groups, especially 60+.  
+     - **Insulin Impact:** Patients prescribed insulin showed higher likelihood of readmission.  
+     - **Diagnosis Trends:** Chronic conditions like circulatory and respiratory diseases were most associated with frequent readmissions.  
+     - **Hospital Utilization:** Patients with multiple prior visits (emergency or inpatient) had significantly higher readmission probability.
+
+6. **Dashboarding**
+   - Created an **interactive Power BI dashboard** to visualize readmission trends, age distributions, diagnosis patterns, and KPIs.  
+   - [Insert screenshot here]
+
+---
+
+## ⚙️ Tech Stack
+
+- **Python**: Pandas, NumPy, Scikit-learn, Imbalanced-learn, Matplotlib, Seaborn  
+- **Streamlit** for deployment  
+- **SQL** for querying and insights  
+- **Power BI** for dashboarding  
+
+---
+
+## ▶️ How to Run
+
+1. Clone repo  
+   ```bash
+   git clone https://github.com/yourusername/diabetes-readmission.git
+   cd diabetes-readmission
