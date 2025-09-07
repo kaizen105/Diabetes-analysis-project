@@ -1,29 +1,38 @@
 # Python artifacts
+# Compiled Python files and build artifacts
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 *.so
 
-# Jupyter notebooks
-*.ipynb
+# Virtual environments
+# Folder names used by common tools
+venv/
+.venv/
+.env/
 
-# Environment files
+# IDE and Editor configurations
+.vscode/
+.idea/
+
+# Environment files and secrets
+# Contains sensitive information. NEVER commit.
 .env
 *.env
+render.yaml
+streamlit.yaml
+*.pem
 
-# Dataset files
-datasets/*.csv
+# Jupyter Notebook files and checkpoints
+# Ignores notebooks themselves. Uncomment the line below if you want to share them
+# *.ipynb
+.ipynb_checkpoints/
+
+# Datasets and large files
+# Uncomment if you want to ignore the entire datasets folder
+datasets/
 
 # Logs and outputs
 *.log
 *.out
-
-# Virtual environments
-venv/
-.env/
-.venv/
-
-# IDE configs
-.vscode/
-.idea/

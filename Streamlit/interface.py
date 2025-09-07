@@ -3,11 +3,9 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import datetime
-import pickle
+import joblib
 import warnings
 warnings.filterwarnings('ignore')
-import joblib
 
 # Configure page
 st.set_page_config(
@@ -16,7 +14,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-# Custom CSS for better styling
+
+# Custom CSS for better styling (your original CSS is good, so I've kept it)
 st.markdown("""
 <style>
     /* Header */
@@ -25,7 +24,7 @@ st.markdown("""
         font-weight: 700;
         color: #1f4e79;
         text-align: center;
-        margin-top: 80px;   /* push title lower */
+        margin-top: 80px; 
         margin-bottom: 2rem;
     }
 
@@ -34,8 +33,8 @@ st.markdown("""
         display: flex;
         justify-content: center;
         gap: 20px;
-        margin-top: 5px;    /* push navbar down slightly */
-        margin-bottom: 50px; /* space between navbar and title */
+        margin-top: 5px;
+        margin-bottom: 50px;
         padding: 5px 15px;
         background: linear-gradient(90deg, #f0f8ff, #e6f3ff);
         border-radius: 15px;
@@ -62,13 +61,13 @@ st.markdown("""
     }
     /* Info Card */
     .info-card {
-        background: #1f4e79;   /* dark blue */
-        color: #f0f8ff;        /* light text */
+        background: #1f4e79;
+        color: #f0f8ff;
         padding: 20px;
         border-radius: 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         margin: 15px 0;
-        border-left: 5px solid #ffe066;  /* yellow accent */
+        border-left: 5px solid #ffe066;
     }
 
     /* Metric Card */
@@ -108,54 +107,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state
-if 'page' not in st.session_state:
-    st.session_state.page = 'Home'
-
-# Cache data loading functions
-@st.cache_data
-def load_model_data():
-    """Load the ML-ready dataset"""
-    try:
-        df = pd.read_csv(r"c:\diabetes_analysis_project\datasets\diabetes_data_ml.csv")
-        return df
-    except Exception as e:
-        st.error(f"Error loading model data: {e}")
-        return None
-
-@st.cache_data
-def load_insights_data():
-    """Load the insights dataset"""
-    try:
-        df = pd.read_csv(r"c:\diabetes_analysis_project\datasets\diabetic_data_clean.csv")
-        return df
-    except Exception as e:
-        st.error(f"Error loading insights data: {e}")
-        return None
-
-@st.cache_data
-def load_model():
-    """Load the trained pipeline model"""
-    path = r"c:\diabetes_analysis_project\notebook\diabetes_readmission.pkl"
-    try:
-        model = joblib.load(path)  # safer for sklearn/imblearn pipelines
-        if isinstance(model, np.ndarray):
-            st.error("❌ Loaded object is a numpy ndarray, not a model.")
-            return None
-        else:
-            return model
-    except Exception as e:
-        st.error(f"Error loading model: {e}")
-        return None
-
-# Navigation function
-# Navigation function
+# Navigation bar
 st.markdown("""
 <style>
 /* Navbar container aligned to top-right */
 .top-nav {
     position: absolute;
-    top: -40px;   /* 👈 moved higher (was 20px) */
+    top: -40px; 
     right: 30px;
     display: flex;
     gap: 30px;
@@ -192,18 +150,60 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ✅ Use st.query_params (not experimental)
+# Cache data loading functions
+@st.cache_data
+def load_model_data():
+    """Load the ML-ready dataset from the repository."""
+    try:
+        df = pd.read_csv("../datasets/diabetes_data_ml.csv")
+        return df
+    except FileNotFoundError:
+        st.error("Error: 'diabetes_data_ml.csv' not found. Please ensure it's in the 'datasets' folder.")
+        return None
+    except Exception as e:
+        st.error(f"Error loading model data: {e}")
+        return None
+
+@st.cache_data
+def load_insights_data():
+    """Load the insights dataset from the repository."""
+    try:
+        df = pd.read_csv("../datasets/diabetic_data_clean.csv")
+        return df
+    except FileNotFoundError:
+        st.error("Error: 'diabetic_data_clean.csv' not found. Please ensure it's in the 'datasets' folder.")
+        return None
+    except Exception as e:
+        st.error(f"Error loading insights data: {e}")
+        return None
+
+# CRITICAL CHANGE: Use st.cache_resource for large binary models
+@st.cache_resource
+def load_model():
+    """Load the trained pipeline model from the repository."""
+    path = "../notebook/diabetes_readmission.pkl"
+    try:
+        model = joblib.load(path)
+        if not hasattr(model, 'predict'):
+            st.error("❌ Loaded object is not a valid model.")
+            return None
+        return model
+    except FileNotFoundError:
+        st.error("Error: 'diabetes_readmission.pkl' not found. Please ensure it's in the 'models' folder.")
+        return None
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        return None
+
+# Main content based on selected page
 query_params = st.query_params
 page = query_params.get("page", "Home")
 
-# Main content based on selected page
 if page == 'Home':
     st.markdown('<h1 class="main-header">🏥 Diabetes Care & Readmission Prevention Center</h1>', unsafe_allow_html=True)
     
-    # Load data for statistics
     insights_df = load_insights_data()
     
-    # Hero section
     col1, col2 = st.columns([2, 1])
     with col1:
         st.markdown("""
@@ -230,7 +230,6 @@ if page == 'Home':
             </div>
             """, unsafe_allow_html=True)
     
-    # Key statistics
     st.markdown("### 📈 Key Statistics")
     col1, col2, col3, col4 = st.columns(4)
 
@@ -266,10 +265,7 @@ if page == 'Home':
         </div>
         """, unsafe_allow_html=True)
 
-    
-    # About diabetes and readmission
     st.markdown("### 🔬 Understanding Diabetes & Readmission")
-    
     col1, col2 = st.columns(2)
     
     with col1:
@@ -310,13 +306,11 @@ elif page == 'Prediction':
     """, unsafe_allow_html=True)
 
     model_df = load_model_data()
-    model = load_model()  # joblib version
+    model = load_model()
 
     if model_df is None or model is None:
-        st.stop()  # stops app if model failed to load
+        st.stop()
 
-
-    # Input form
     with st.form("prediction_form"):
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -343,7 +337,6 @@ elif page == 'Prediction':
         predict_button = st.form_submit_button("🔍 Predict Readmission Risk", type="primary")
 
     if predict_button:
-        # All columns as in CLI script
         all_columns = [
             'gender', 'age', 'time_in_hospital', 'num_lab_procedures', 'num_procedures',
             'num_medications', 'number_diagnoses', 'total_visits', 'race_Asian',
@@ -365,16 +358,9 @@ elif page == 'Prediction':
             'diag_3_Musculoskeletal', 'diag_3_Neoplasms', 'diag_3_Other', 'diag_3_Respiratory',
             'diag_3_Unknown'
         ]
-        # Initialize all features
-        patient = {}
-        for col in all_columns:
-            if col in ['gender', 'age', 'time_in_hospital', 'num_lab_procedures', 'num_procedures',
-                       'num_medications', 'number_diagnoses', 'total_visits']:
-                patient[col] = 0
-            else:
-                patient[col] = False
-
-        # Set actual values
+        
+        patient = {col: False for col in all_columns}
+        
         patient['gender'] = gender_code
         patient['age'] = age
         patient['time_in_hospital'] = time_in_hospital
@@ -384,39 +370,34 @@ elif page == 'Prediction':
         patient['number_diagnoses'] = number_diagnoses
         patient['total_visits'] = total_visits
 
-        # Set race
         race_mapping = {'Caucasian': 'race_Caucasian', 'Asian': 'race_Asian', 'Hispanic': 'race_Hispanic', 'Other': 'race_Other'}
-        patient[race_mapping[race]] = True
+        if race in race_mapping:
+            patient[race_mapping[race]] = True
 
-        # Set admission type
         if admission_type == "Emergency":
             patient['admission_type_id_Emergency'] = True
         else:
             patient['admission_type_id_Not Available'] = True
 
-        # Set insurance
         if insurance == "Medicare (MC)":
             patient['payer_code_MC'] = True
         else:
             patient['payer_code_Other'] = True
 
-        # Set diabetes info
         if has_diabetes:
             patient['diag_1_Diabetes'] = True
             patient['diag_2_Diabetes'] = True
             if on_diabetes_med:
                 patient['diabetesMed_Yes'] = True
-
-        # Set defaults for required fields
-        patient['insulin_No'] = True
-        patient['change_No'] = True
-
-        # Set some diagnosis (if not diabetes, set other)
-        if not has_diabetes:
+        else:
             patient['diag_1_Other'] = True
 
-        # Prepare DataFrame for prediction
+        patient['insulin_No'] = True
+        patient['change_No'] = True
+        patient['admission_source_id_Referral'] = True # Example default for required fields
+
         patient_df = pd.DataFrame([patient])
+        patient_df = patient_df.astype({c: 'int64' for c in patient_df.select_dtypes('bool').columns})
 
         with st.spinner("Analyzing patient data..."):
             try:
@@ -425,8 +406,7 @@ elif page == 'Prediction':
             except Exception as e:
                 st.error(f"Prediction error: {e}")
                 st.stop()
-
-            # Display results
+            
             risk_level = "Low"
             risk_class = "low-risk"
             color = "#27ae60"
@@ -451,45 +431,42 @@ elif page == 'Prediction':
             </div>
             """, unsafe_allow_html=True)
 
-            # Recommendations
             st.subheader("📋 Clinical Recommendations")
             if probability > 0.6:
                 st.markdown("""
-                • Enhanced discharge planning<br>
-                • Early follow-up appointment<br>
-                • Medication reconciliation<br>
-                • Patient education on warning signs
+                - Enhanced discharge planning<br>
+                - Early follow-up appointment<br>
+                - Medication reconciliation<br>
+                - Patient education on warning signs
                 """)
             elif probability > 0.4:
                 st.markdown("""
-                • Standard discharge planning<br>
-                • Routine follow-up scheduling<br>
-                • Basic medication review
+                - Standard discharge planning<br>
+                - Routine follow-up scheduling<br>
+                - Basic medication review
                 """)
             else:
                 st.markdown("""
-                • Standard care protocols<br>
-                • Routine follow-up as needed
+                - Standard care protocols<br>
+                - Routine follow-up as needed
                 """)
 
 elif page == 'Insights':
     st.markdown('<h1 class="main-header">📊 Data Insights & Analytics</h1>', unsafe_allow_html=True)
     
-    # Load insights data
     insights_df = load_insights_data()
     
     if insights_df is None:
         st.error("❌ Could not load insights dataset. Please check file path.")
         st.stop()
     
-    # Key metrics
     col1, col2, col3, col4 = st.columns(4)
     
     total_patients = len(insights_df['patient_nbr'].unique())
     readmit_30 = len(insights_df[insights_df['readmitted'] == '<30'])
     readmit_rate = (readmit_30 / total_patients) * 100
     avg_stay = insights_df['time_in_hospital'].mean()
-    avg_age = insights_df['age'].value_counts().index[0]  # Most common age group
+    avg_age = insights_df['age'].mode()[0]
     
     with col1:
         st.metric("Total Records", f"{total_patients:,}")
@@ -500,11 +477,9 @@ elif page == 'Insights':
     with col4:
         st.metric("Avg Hospital Stay", f"{avg_stay:.1f} days")
     
-    # Charts
     col1, col2 = st.columns(2)
     
     with col1:
-        # Readmission by age group
         age_readmit = insights_df.groupby(['age', 'readmitted']).size().unstack(fill_value=0)
         age_readmit_pct = age_readmit.div(age_readmit.sum(axis=1), axis=0) * 100
         
@@ -518,59 +493,56 @@ elif page == 'Insights':
         st.plotly_chart(fig1, use_container_width=True)
     
     with col2:
-        # Gender distribution
         gender_counts = insights_df['gender'].value_counts()
         fig2 = px.pie(values=gender_counts.values, names=gender_counts.index, 
-                     title="Patient Gender Distribution")
+                      title="Patient Gender Distribution")
         st.plotly_chart(fig2, use_container_width=True)
     
-    # Time in hospital analysis
     col1, col2 = st.columns(2)
     
     with col1:
         fig3 = px.histogram(insights_df, x='time_in_hospital', 
-                           title="Distribution of Hospital Stay Length",
-                           nbins=14)
+                            title="Distribution of Hospital Stay Length",
+                            nbins=14)
         fig3.update_traces(marker_color='#3498db')
         st.plotly_chart(fig3, use_container_width=True)
     
     with col2:
-        # Readmission by insulin use
         insulin_readmit = pd.crosstab(insights_df['insulin'], insights_df['readmitted'], normalize='index') * 100
         
         fig4 = px.bar(insulin_readmit, 
-                     title="Readmission Rate by Insulin Usage",
-                     labels={'value': 'Percentage', 'index': 'Insulin Usage'})
+                      title="Readmission Rate by Insulin Usage",
+                      labels={'value': 'Percentage', 'index': 'Insulin Usage'})
         st.plotly_chart(fig4, use_container_width=True)
     
-    # Race and admission analysis
     st.subheader("📈 Demographic Analysis")
-    
     col1, col2 = st.columns(2)
     
     with col1:
         race_counts = insights_df['race'].value_counts()
         fig5 = px.bar(x=race_counts.index, y=race_counts.values,
-                     title="Patient Distribution by Race")
+                      title="Patient Distribution by Race")
         fig5.update_traces(marker_color='#9b59b6')
         st.plotly_chart(fig5, use_container_width=True)
     
     with col2:
         admission_counts = insights_df['admission_type_id'].value_counts()
         fig6 = px.bar(x=admission_counts.index, y=admission_counts.values,
-                     title="Admission Type Distribution")
+                      title="Admission Type Distribution")
         fig6.update_traces(marker_color='#f39c12')
         st.plotly_chart(fig6, use_container_width=True)
     
-    # Key insights
     st.subheader("🔍 Key Insights")
     
     insight_col1, insight_col2, insight_col3 = st.columns(3)
     
     with insight_col1:
         high_risk_age = insights_df[insights_df['age'].isin(['[70-80)', '[80-90)', '[90-100)'])]
-        high_risk_readmit = len(high_risk_age[high_risk_age['readmitted'] == '<30']) / len(high_risk_age) * 100
-        
+        if not high_risk_age.empty and '<30' in high_risk_age['readmitted'].unique():
+            high_risk_readmit = len(high_risk_age[high_risk_age['readmitted'] == '<30']) / len(high_risk_age) * 100
+        else:
+            high_risk_readmit = 0
+            
         st.markdown(f"""
         <div class="info-card">
             <h4>🎯 High-Risk Demographics</h4>
@@ -620,7 +592,6 @@ elif page == 'Treatment':
     </div>
     """, unsafe_allow_html=True)
     
-    # Sections
     st.subheader("🍎 Lifestyle & Diet")
     st.markdown("""
     <ul>
