@@ -20,8 +20,6 @@ venv/
 # Contains sensitive information. NEVER commit.
 .env
 *.env
-render.yaml
-streamlit.yaml
 *.pem
 
 # Jupyter Notebook files and checkpoints
