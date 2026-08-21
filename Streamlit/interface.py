@@ -337,6 +337,7 @@ elif page == 'Prediction':
             age_val = st.select_slider('Age', options=list(age_map.values()), value=55)
             gender = st.selectbox('Gender', ['Male', 'Female'])
             gender_code = 1 if gender == "Male" else 0
+            race = st.selectbox("Race", ["Caucasian", "Asian", "Hispanic", "Other"])
             
             st.markdown("### 🏥 Clinical Data")
             time_in_hospital = st.slider("Time in Hospital (days)", 1, 15, 3)
@@ -384,7 +385,7 @@ elif page == 'Prediction':
         patient = {col: False for col in all_columns}
         
         patient['gender'] = gender_code
-        patient['age'] = age
+        patient['age'] = age_val
         patient['time_in_hospital'] = time_in_hospital
         patient['num_lab_procedures'] = num_lab_procedures
         patient['num_procedures'] = num_procedures
@@ -406,16 +407,15 @@ elif page == 'Prediction':
         else:
             patient['payer_code_Other'] = True
 
-        if has_diabetes:
+        if diabetesMed == 'Yes':
             patient['diag_1_Diabetes'] = True
             patient['diag_2_Diabetes'] = True
-            if on_diabetes_med:
-                patient['diabetesMed_Yes'] = True
+            patient['diabetesMed_Yes'] = True
         else:
             patient['diag_1_Other'] = True
 
-        patient['insulin_No'] = True
-        patient['change_No'] = True
+        patient[f'insulin_{insulin}'] = True
+        patient[f'change_{change}'] = True
         patient['admission_source_id_Referral'] = True # Example default for required fields
         
         # New model missing column defaults
@@ -606,17 +606,29 @@ elif page == 'Insights':
                         X_sample = X.sample(n=min(200, len(X)), random_state=42)
                         # Ensure features match model by transforming through the pipeline
                         import scipy.sparse
+                        import numpy as np
                         if len(model.steps) > 1:
                             preprocessor = model[:-1]
                             X_transformed = preprocessor.transform(X_sample)
                             if scipy.sparse.issparse(X_transformed):
                                 X_transformed = X_transformed.toarray()
-                            X_sample = pd.DataFrame(X_transformed, columns=xgb_model.feature_names_in_)
+                            # Force standard float matrix
+                            X_transformed = np.array(X_transformed, dtype=float)
+                            
+                            try:
+                                feature_names = preprocessor.get_feature_names_out()
+                            except:
+                                try:
+                                    feature_names = xgb_model.feature_names_in_
+                                except:
+                                    feature_names = [f"Feature {i}" for i in range(X_transformed.shape[1])]
+                                    
+                            X_sample = pd.DataFrame(X_transformed, columns=feature_names)
                         else:
-                            X_sample = X_sample[xgb_model.feature_names_in_]
-                        
-                        # Convert to float to avoid any categorical/string plotting errors in matplotlib
-                        X_sample = X_sample.astype(float)
+                            try:
+                                X_sample = X_sample[xgb_model.feature_names_in_]
+                            except:
+                                pass
                         
                         shap_values = explainer.shap_values(X_sample)
                         
