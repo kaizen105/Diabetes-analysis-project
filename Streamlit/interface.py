@@ -71,7 +71,7 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         margin: 15px 0;
         border-left: 5px solid #f39c12;
-        min-height: 240px;
+        min-height: 280px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -322,26 +322,32 @@ elif page == 'Prediction':
         st.stop()
 
     with st.form("prediction_form"):
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
+        
         with col1:
-            st.subheader("👤 Demographics")
-            age = st.slider("Age", 20, 100, 55)
-            gender = st.selectbox("Gender", ["Female", "Male"])
-            gender_code = 1 if gender == "Male" else 0
-            race = st.selectbox("Race", ["Caucasian", "Asian", "Hispanic", "Other"])
-        with col2:
-            st.subheader("🏥 Clinical Data")
+            st.markdown("### 👤 Demographics")
+            age_map = {
+                '[0-10)': 5, '[10-20)': 15, '[20-30)': 25, '[30-40)': 35,
+                '[40-50)': 45, '[50-60)': 55, '[60-70)': 65, '[70-80)': 75,
+                '[80-90)': 85, '[90-100)': 95
+            }
+            age_val = st.select_slider('Age', options=list(age_map.values()), value=55)
+            gender = st.selectbox('Gender', ['Male', 'Female'])
+            
+            st.markdown("### 🏥 Clinical Data")
             time_in_hospital = st.slider("Time in Hospital (days)", 1, 15, 3)
             num_medications = st.slider("Number of Medications", 1, 30, 16)
             num_lab_procedures = st.slider("Number of Lab Procedures", 1, 50, 41)
             num_procedures = st.slider("Number of Procedures", 0, 10, 1)
             number_diagnoses = st.slider("Number of Diagnoses", 1, 10, 7)
             total_visits = st.slider("Previous Hospital Visits", 0, 20, 0)
-        with col3:
-            st.subheader("📋 Medical Details")
-            has_diabetes = st.selectbox("Does patient have diabetes?", ["Yes", "No"]) == "Yes"
-            on_diabetes_med = st.selectbox("On diabetes medication?", ["Yes", "No"]) == "Yes" if has_diabetes else False
-            admission_type = st.selectbox("Admission Type", ["Emergency", "Not Available/Other"])
+        
+        with col2:
+            st.markdown("### 📝 Medical Details")
+            diabetesMed = st.selectbox('Does patient have diabetes?', ['Yes', 'No'])
+            insulin = st.selectbox('Insulin Usage', ['No', 'Up', 'Down', 'Steady'])
+            change = st.selectbox('Change in Medication?', ['Ch', 'No'])
+            admission_type = st.selectbox('Admission Type', ['Emergency', 'Elective', 'Urgent', 'Other'])
             insurance = st.selectbox("Insurance/Payer", ["Medicare (MC)", "Other"])
 
         predict_button = st.form_submit_button("🔍 Predict Readmission Risk", type="primary")
@@ -595,10 +601,11 @@ elif page == 'Insights':
                         # Use a small sample to avoid freezing the app
                         X_sample = X.sample(n=min(200, len(X)), random_state=42)
                         # Ensure features match model by transforming through the pipeline
+                        import scipy.sparse
                         if len(model.steps) > 1:
                             preprocessor = model[:-1]
                             X_transformed = preprocessor.transform(X_sample)
-                            if hasattr(X_transformed, 'toarray'):
+                            if scipy.sparse.issparse(X_transformed):
                                 X_transformed = X_transformed.toarray()
                             X_sample = pd.DataFrame(X_transformed, columns=xgb_model.feature_names_in_)
                         else:
