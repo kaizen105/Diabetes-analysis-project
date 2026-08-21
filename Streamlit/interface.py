@@ -355,7 +355,9 @@ elif page == 'Prediction':
             admission_type = st.selectbox('Admission Type', ['Emergency', 'Elective', 'Urgent', 'Other'])
             admission_source = st.selectbox('Admission Source', ['Referral', 'Transferred from hospital', 'Other/Not Available'])
             discharge_disposition = st.selectbox('Discharge Disposition', ['Discharged home', 'Transferred to another facility', 'Left AMA', 'Still patient/referred to this institution', 'Other/Not Available'])
-            insurance = st.selectbox("Insurance/Payer", ["Medicare (MC)", "Other"])
+            insurance = st.selectbox("Insurance/Payer", ["Medicare (MC)", "CH", "CM", "CP", "DM", "FR", "HM", "MD", "MP", "OG", "OT", "PO", "SI", "SP", "UN", "WC", "Other"])
+            max_glu_serum = st.selectbox('Max Glu Serum', ['Not Measured', 'Norm', '>300'])
+            A1Cresult = st.selectbox('A1C Result', ['Not Measured', 'Norm', '>8'])
 
         predict_button = st.form_submit_button("🔍 Predict Readmission Risk", type="primary")
 
@@ -406,6 +408,8 @@ elif page == 'Prediction':
 
         if insurance == "Medicare (MC)":
             patient['payer_code_MC'] = True
+        elif insurance in ["CH", "CM", "CP", "DM", "FR", "HM", "MD", "MP", "OG", "OT", "PO", "SI", "SP", "UN", "WC"]:
+            patient[f'payer_code_{insurance}'] = True
         else:
             patient['payer_code_Other'] = True
 
@@ -436,9 +440,19 @@ elif page == 'Prediction':
             patient['discharge_disposition_id_Still patient/referred to this institution'] = True
         elif discharge_disposition == 'Other/Not Available':
             patient['discharge_disposition_id_Not Available'] = True
-        # New model missing column defaults
-        patient['max_glu_serum_Not Measured'] = True
-        patient['A1Cresult_Not Measured'] = True
+        if max_glu_serum == 'Norm':
+            patient['max_glu_serum_Norm'] = True
+        elif max_glu_serum == '>300':
+            patient['max_glu_serum_>300'] = True
+        else:
+            patient['max_glu_serum_Not Measured'] = True
+            
+        if A1Cresult == 'Norm':
+            patient['A1Cresult_Norm'] = True
+        elif A1Cresult == '>8':
+            patient['A1Cresult_>8'] = True
+        else:
+            patient['A1Cresult_Not Measured'] = True
 
         patient_df = pd.DataFrame([patient])
         patient_df = patient_df.astype({c: 'int64' for c in patient_df.select_dtypes('bool').columns})
