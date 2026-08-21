@@ -439,11 +439,11 @@ elif page == 'Prediction':
             risk_level = "Low"
             risk_class = "low-risk"
             color = "#27ae60"
-            if probability < 0.3:
+            if probability < 0.40:
                 risk_level = "Low"
                 risk_class = "low-risk"
                 color = "#27ae60"
-            elif probability < 0.7:
+            elif probability < 0.55:
                 risk_level = "Medium"
                 risk_class = "medium-risk"
                 color = "#f39c12"
