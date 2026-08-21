@@ -603,8 +603,6 @@ elif page == 'Insights':
                         xgb_model = model.steps[-1][1]
                         # For TreeExplainer, we might just need the xgb model and X directly if there's no complex preprocessing 
                         # Or if we have simple one-hot encoding we can explain directly on it.
-                        explainer = shap.TreeExplainer(xgb_model)
-                        
                         # Use a small sample to avoid freezing the app
                         X_sample = X.sample(n=min(200, len(X)), random_state=42)
                         # Ensure features match model by transforming through the pipeline
