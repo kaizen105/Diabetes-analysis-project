@@ -25,7 +25,7 @@ st.markdown("""
     .main-header {
         font-size: 2.5rem;
         font-weight: 700;
-        color: #1f4e79;
+        color: #f8fafc;
         text-align: center;
         margin-top: 80px; 
         margin-bottom: 2rem;
@@ -39,9 +39,9 @@ st.markdown("""
         margin-top: 5px;
         margin-bottom: 50px;
         padding: 5px 15px;
-        background: linear-gradient(90deg, #f0f8ff, #e6f3ff);
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background: #1e293b;
+        border-radius: 0px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         position: relative;
         z-index: 10;
     }
@@ -49,45 +49,46 @@ st.markdown("""
     /* Navbar Button */
     .nav-button {
         padding: 12px 24px;
-        border-radius: 25px;
+        border-radius: 0px;
         border: none;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
         text-decoration: none;
-        color: #fff;
-        background: linear-gradient(45deg, #1f4e79, #2980b9);
+        color: #f8fafc;
+        background: #334155;
     }
     .nav-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+        background: #38bdf8;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
     }
     /* Info Card */
     .info-card {
-        background: #1f4e79;
-        color: #f0f8ff;
+        background: #1e293b;
+        color: #f8fafc;
         padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 0px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         margin: 15px 0;
-        border-left: 5px solid #ffe066;
+        border-left: 5px solid #38bdf8;
     }
 
     /* Metric Card */
     .metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #fff;
+        background: #1e293b;
+        color: #f8fafc;
         padding: 20px;
-        border-radius: 15px;
+        border-radius: 0px;
         text-align: center;
         margin: 10px 0;
         font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     /* Prediction Result */
     .prediction-result {
         padding: 20px;
-        border-radius: 15px;
+        border-radius: 0px;
         text-align: center;
         font-size: 1.2rem;
         font-weight: 600;
@@ -96,16 +97,19 @@ st.markdown("""
 
     /* Risk Levels */
     .low-risk {
-        background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
-        color: #2d5f3f;
+        background: #334155;
+        color: #a8e6cf;
+        border-left: 5px solid #a8e6cf;
     }
     .medium-risk {
-        background: linear-gradient(135deg, #ffd93d, #ff9500);
-        color: #8b5a00;
+        background: #334155;
+        color: #ffd93d;
+        border-left: 5px solid #ffd93d;
     }
     .high-risk {
-        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
-        color: #fff;
+        background: #334155;
+        color: #ff6b6b;
+        border-left: 5px solid #ff6b6b;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -119,28 +123,27 @@ st.markdown("""
     top: -40px; 
     right: 30px;
     display: flex;
-    gap: 30px;
+    gap: 15px;
     padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 12px;
+    background: #0f172a;
+    border-radius: 0px;
     z-index: 999;
 }
 
 /* Navbar links */
 .top-nav a {
     padding: 8px 14px;
-    border-radius: 8px;
+    border-radius: 0px;
     font-weight: 600;
     text-decoration: none;
-    color: #ffffff;
-    background: linear-gradient(45deg, #1f4e79, #2980b9);
+    color: #f8fafc;
+    background: #1e293b;
     transition: all 0.3s ease;
     font-size: 0.95rem;
 }
 
 .top-nav a:hover {
-    background: linear-gradient(45deg, #2980b9, #1f4e79);
-    transform: translateY(-2px);
+    background: #38bdf8;
 }
 </style>
 
@@ -182,16 +185,10 @@ def load_insights_data():
 # ----------------------------
 @st.cache_resource
 def load_model():
-    """Load the trained pipeline model from GitHub repo."""
+    """Load the trained pipeline model from the local directory."""
     try:
-        url = "https://raw.githubusercontent.com/kaizen105/Diabetes-analysis-project/8eb4417d802bb66a0c8efff44f56a593d5b4ae15/notebook/diabetes_readmission.pkl"
-        
-        # Download to a temporary file
-        tmp = tempfile.NamedTemporaryFile(delete=False)
-        urllib.request.urlretrieve(url, tmp.name)
-        
-        model = joblib.load(tmp.name)
-        os.unlink(tmp.name)  # cleanup temp file
+        model_path = os.path.join(BASE_DIR, '../notebook/diabetes_readmission.pkl')
+        model = joblib.load(model_path)
 
         if not hasattr(model, "predict"):
             st.error("❌ Loaded object is not a valid model.")
@@ -225,12 +222,14 @@ if page == 'Home':
     
     with col2:
         if insights_df is not None:
+            total_encounters = len(insights_df)
             total_patients = insights_df['patient_nbr'].nunique()
-            readmission_rate = len(insights_df[insights_df['readmitted'] == '<30']) / len(insights_df) * 100
+            readmit_30 = len(insights_df[insights_df['readmitted'] == '<30'])
+            readmission_rate = (readmit_30 / total_encounters) * 100
             st.markdown(f"""
             <div class="info-card">
                 <h4>📊 Dataset Overview</h4>
-                <p><strong>Total Records:</strong> {len(insights_df):,}</p>
+                <p><strong>Total Encounters:</strong> {total_encounters:,}</p>
                 <p><strong>Unique Patients:</strong> {total_patients:,}</p>
                 <p><strong>30-day Readmission Rate:</strong> {readmission_rate:.1f}%</p>
             </div>
@@ -239,37 +238,38 @@ if page == 'Home':
     st.markdown("### 📈 Key Statistics")
     col1, col2, col3, col4 = st.columns(4)
 
-    with col1:
-        st.markdown("""
-        <div class="metric-card">
-            <h3>70K</h3>
-            <p>Total Patients</p>
-        </div>
-        """, unsafe_allow_html=True)
+    if insights_df is not None:
+        with col1:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>{total_patients:,}</h3>
+                <p>Unique Patients</p>
+            </div>
+            """, unsafe_allow_html=True)
 
-    with col2:
-        st.markdown("""
-        <div class="metric-card">
-            <h3>47K</h3>
-            <p>Readmission Count</p>
-        </div>
-        """, unsafe_allow_html=True)
+        with col2:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>{readmit_30:,}</h3>
+                <p>30-day Readmissions</p>
+            </div>
+            """, unsafe_allow_html=True)
 
-    with col3:
-        st.markdown("""
-        <div class="metric-card">
-            <h3>67%</h3>
-            <p>Readmission %</p>
-        </div>
-        """, unsafe_allow_html=True)
+        with col3:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>{readmission_rate:.1f}%</h3>
+                <p>30-day Readmission Rate</p>
+            </div>
+            """, unsafe_allow_html=True)
 
-    with col4:
-        st.markdown("""
-        <div class="metric-card">
-            <h3>89%</h3>
-            <p>Model Accuracy</p>
-        </div>
-        """, unsafe_allow_html=True)
+        with col4:
+            st.markdown("""
+            <div class="metric-card">
+                <h3 title="AUC (Area Under ROC Curve) — measures ability to correctly rank patients by readmission risk; more reliable than accuracy on imbalanced clinical data.">0.667</h3>
+                <p>Test AUC</p>
+            </div>
+            """, unsafe_allow_html=True)
 
     st.markdown("### 🔬 Understanding Diabetes & Readmission")
     col1, col2 = st.columns(2)
@@ -355,7 +355,9 @@ elif page == 'Prediction':
             'payer_code_HM', 'payer_code_MC', 'payer_code_MD', 'payer_code_MP', 'payer_code_OG',
             'payer_code_OT', 'payer_code_Other', 'payer_code_PO', 'payer_code_SI', 'payer_code_SP',
             'payer_code_UN', 'payer_code_WC', 'insulin_No', 'insulin_Steady', 'insulin_Up',
-            'change_No', 'diabetesMed_Yes', 'diag_1_Diabetes', 'diag_1_Digestive',
+            'change_No', 'diabetesMed_Yes', 'max_glu_serum_>300', 'max_glu_serum_Norm', 
+            'max_glu_serum_Not Measured', 'A1Cresult_>8', 'A1Cresult_Norm', 'A1Cresult_Not Measured',
+            'diag_1_Diabetes', 'diag_1_Digestive',
             'diag_1_Genitourinary', 'diag_1_Injury', 'diag_1_Musculoskeletal', 'diag_1_Neoplasms',
             'diag_1_Other', 'diag_1_Respiratory', 'diag_1_Unknown', 'diag_2_Diabetes',
             'diag_2_Digestive', 'diag_2_Genitourinary', 'diag_2_Injury', 'diag_2_Musculoskeletal',
@@ -401,6 +403,10 @@ elif page == 'Prediction':
         patient['insulin_No'] = True
         patient['change_No'] = True
         patient['admission_source_id_Referral'] = True # Example default for required fields
+        
+        # New model missing column defaults
+        patient['max_glu_serum_Not Measured'] = True
+        patient['A1Cresult_Not Measured'] = True
 
         patient_df = pd.DataFrame([patient])
         patient_df = patient_df.astype({c: 'int64' for c in patient_df.select_dtypes('bool').columns})
@@ -468,75 +474,128 @@ elif page == 'Insights':
     
     col1, col2, col3, col4 = st.columns(4)
     
-    total_patients = len(insights_df['patient_nbr'].unique())
+    total_encounters = len(insights_df)
+    total_patients = insights_df['patient_nbr'].nunique()
     readmit_30 = len(insights_df[insights_df['readmitted'] == '<30'])
-    readmit_rate = (readmit_30 / total_patients) * 100
+    readmit_rate = (readmit_30 / total_encounters) * 100
     avg_stay = insights_df['time_in_hospital'].mean()
     avg_age = insights_df['age'].mode()[0]
     
     with col1:
-        st.metric("Total Records", f"{total_patients:,}")
+        st.metric("Total Encounters", f"{total_encounters:,}")
     with col2:
         st.metric("30-day Readmissions", f"{readmit_30:,}")
     with col3:
-        st.metric("Readmission Rate", f"{readmit_rate:.1f}%")
+        st.metric("30-day Readmission Rate", f"{readmit_rate:.1f}%")
     with col4:
         st.metric("Avg Hospital Stay", f"{avg_stay:.1f} days")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        age_readmit = insights_df.groupby(['age', 'readmitted']).size().unstack(fill_value=0)
-        age_readmit_pct = age_readmit.div(age_readmit.sum(axis=1), axis=0) * 100
-        
-        fig1 = px.bar(
-            x=age_readmit_pct.index,
-            y=age_readmit_pct['<30'] if '<30' in age_readmit_pct.columns else [0]*len(age_readmit_pct.index),
-            title="30-day Readmission Rate by Age Group",
-            labels={'x': 'Age Group', 'y': 'Readmission Rate (%)'}
-        )
-        fig1.update_traces(marker_color='#e74c3c')
-        st.plotly_chart(fig1, use_container_width=True)
+        with st.container(border=True):
+            age_readmit = insights_df.groupby(['age', 'readmitted']).size().unstack(fill_value=0)
+            age_readmit_pct = age_readmit.div(age_readmit.sum(axis=1), axis=0) * 100
+            
+            fig1 = px.bar(
+                x=age_readmit_pct.index,
+                y=age_readmit_pct['<30'] if '<30' in age_readmit_pct.columns else [0]*len(age_readmit_pct.index),
+                title="30-day Readmission Rate by Age Group",
+                labels={'x': 'Age Group', 'y': 'Readmission Rate (%)'}
+            )
+            fig1.update_traces(marker_color='#e74c3c')
+            st.plotly_chart(fig1, use_container_width=True)
     
     with col2:
-        gender_counts = insights_df['gender'].value_counts()
-        fig2 = px.pie(values=gender_counts.values, names=gender_counts.index, 
-                      title="Patient Gender Distribution")
-        st.plotly_chart(fig2, use_container_width=True)
+        with st.container(border=True):
+            gender_counts = insights_df['gender'].value_counts()
+            fig2 = px.pie(values=gender_counts.values, names=gender_counts.index, 
+                          title="Patient Gender Distribution")
+            st.plotly_chart(fig2, use_container_width=True)
     
     col1, col2 = st.columns(2)
     
     with col1:
-        fig3 = px.histogram(insights_df, x='time_in_hospital', 
-                            title="Distribution of Hospital Stay Length",
-                            nbins=14)
-        fig3.update_traces(marker_color='#3498db')
-        st.plotly_chart(fig3, use_container_width=True)
+        with st.container(border=True):
+            fig3 = px.histogram(insights_df, x='time_in_hospital', 
+                                title="Distribution of Hospital Stay Length",
+                                nbins=14)
+            fig3.update_traces(marker_color='#3498db')
+            st.plotly_chart(fig3, use_container_width=True)
     
     with col2:
-        insulin_readmit = pd.crosstab(insights_df['insulin'], insights_df['readmitted'], normalize='index') * 100
-        
-        fig4 = px.bar(insulin_readmit, 
-                      title="Readmission Rate by Insulin Usage",
-                      labels={'value': 'Percentage', 'index': 'Insulin Usage'})
-        st.plotly_chart(fig4, use_container_width=True)
+        with st.container(border=True):
+            insulin_readmit = pd.crosstab(insights_df['insulin'], insights_df['readmitted'], normalize='index') * 100
+            
+            fig4 = px.bar(insulin_readmit, 
+                          title="Readmission Rate by Insulin Usage",
+                          labels={'value': 'Percentage', 'index': 'Insulin Usage'})
+            st.plotly_chart(fig4, use_container_width=True)
     
     st.subheader("📈 Demographic Analysis")
     col1, col2 = st.columns(2)
     
     with col1:
-        race_counts = insights_df['race'].value_counts()
-        fig5 = px.bar(x=race_counts.index, y=race_counts.values,
-                      title="Patient Distribution by Race")
-        fig5.update_traces(marker_color='#9b59b6')
-        st.plotly_chart(fig5, use_container_width=True)
+        with st.container(border=True):
+            race_counts = insights_df['race'].value_counts()
+            fig5 = px.bar(x=race_counts.index, y=race_counts.values,
+                          title="Patient Distribution by Race")
+            fig5.update_traces(marker_color='#9b59b6')
+            st.plotly_chart(fig5, use_container_width=True)
     
     with col2:
-        admission_counts = insights_df['admission_type_id'].value_counts()
-        fig6 = px.bar(x=admission_counts.index, y=admission_counts.values,
-                      title="Admission Type Distribution")
-        fig6.update_traces(marker_color='#f39c12')
-        st.plotly_chart(fig6, use_container_width=True)
+        with st.container(border=True):
+            admission_counts = insights_df['admission_type_id'].value_counts()
+            fig6 = px.bar(x=admission_counts.index, y=admission_counts.values,
+                          title="Admission Type Distribution")
+            fig6.update_traces(marker_color='#f39c12')
+            st.plotly_chart(fig6, use_container_width=True)
+            
+    st.subheader("🧠 Model Feature Importance (SHAP)")
+    model_df = load_model_data()
+    model = load_model()
+    if model_df is not None and model is not None:
+        with st.spinner("Calculating SHAP Feature Importance..."):
+            with st.container(border=True):
+                try:
+                    import shap
+                    import matplotlib.pyplot as plt
+                    
+                    X = model_df.drop('readmitted', axis=1) if 'readmitted' in model_df.columns else model_df
+                    
+                    # Ensure X has all features expected by the model
+                    missing_cols = ['max_glu_serum_>300', 'max_glu_serum_Norm', 'max_glu_serum_Not Measured', 
+                                    'A1Cresult_>8', 'A1Cresult_Norm', 'A1Cresult_Not Measured']
+                    for col in missing_cols:
+                        if col not in X.columns:
+                            X[col] = True if 'Not Measured' in col else False
+                    
+                    # Extract XGBoost step and transform sample for SHAP
+                    # We'll assume it's a pipeline and XGBClassifier is the last step
+                    if hasattr(model, 'steps'):
+                        xgb_model = model.steps[-1][1]
+                        # For TreeExplainer, we might just need the xgb model and X directly if there's no complex preprocessing 
+                        # Or if we have simple one-hot encoding we can explain directly on it.
+                        explainer = shap.TreeExplainer(xgb_model)
+                        
+                        # Use a small sample to avoid freezing the app
+                        X_sample = X.sample(n=min(200, len(X)), random_state=42)
+                        # Ensure features match model
+                        if hasattr(model, 'feature_names_in_'):
+                            X_sample = X_sample[model.feature_names_in_]
+                        elif hasattr(xgb_model, 'feature_names_in_'):
+                            # If there's a preprocessing step in the pipeline, we transform first
+                            preprocessor = model[:-1]
+                            X_transformed = preprocessor.transform(X_sample)
+                            X_sample = pd.DataFrame(X_transformed, columns=xgb_model.feature_names_in_)
+                        
+                        shap_values = explainer.shap_values(X_sample)
+                        
+                        fig, ax = plt.subplots(figsize=(10, 6))
+                        shap.summary_plot(shap_values, X_sample, show=False, max_display=15)
+                        st.pyplot(fig)
+                except Exception as e:
+                    st.error(f"Could not generate SHAP plot: {e}")
     
     st.subheader("🔍 Key Insights")
     
