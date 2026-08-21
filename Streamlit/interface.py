@@ -414,8 +414,11 @@ elif page == 'Prediction':
         else:
             patient['diag_1_Other'] = True
 
-        patient[f'insulin_{insulin}'] = True
-        patient[f'change_{change}'] = True
+        if insulin in ['No', 'Steady', 'Up']:
+            patient[f'insulin_{insulin}'] = True
+            
+        if change == 'No':
+            patient['change_No'] = True
         patient['admission_source_id_Referral'] = True # Example default for required fields
         
         # New model missing column defaults
@@ -630,25 +633,27 @@ elif page == 'Insights':
                             except:
                                 pass
                         
+                        # Convert to float to avoid any categorical/string plotting errors in matplotlib
+                        X_sample = X_sample.astype(float)
+                        
                         shap_values = explainer.shap_values(X_sample)
                         
                         # If shap_values is a list (multiclass or binary with two outputs), select the positive class
                         if isinstance(shap_values, list) and len(shap_values) == 2:
                             shap_values = shap_values[1]
                         
+                        shap_values = np.array(shap_values, dtype=float)
+                        
                         fig, ax = plt.subplots(figsize=(10, 6))
                         fig.patch.set_alpha(0.0)
                         ax.set_facecolor('none')
-                        ax.xaxis.label.set_color('white')
-                        ax.yaxis.label.set_color('white')
-                        ax.tick_params(colors='white')
-                        for spine in ax.spines.values():
-                            spine.set_edgecolor('white')
-                            
+                        
                         shap.summary_plot(shap_values, X_sample, show=False, max_display=15)
                         st.pyplot(fig)
                 except Exception as e:
+                    import traceback
                     st.error(f"Could not generate SHAP plot: {e}")
+                    st.code(traceback.format_exc())
     
     st.subheader("🔍 Key Insights")
     

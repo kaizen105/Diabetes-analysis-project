@@ -7,7 +7,7 @@ This project implements a **machine learning pipeline** to predict hospital read
 ## Key Features
 
 * **Data Preprocessing:** Handles numerical and categorical features, applies scaling (`StandardScaler`) and transformation (`PowerTransformer`).
-* **Machine Learning Pipeline:** Employs XGBoost within a **scikit-learn Pipeline** for robust, reproducible predictions.
+* **Machine Learning Pipeline:** Employs XGBoost within a **scikit-learn Pipeline** for robust, reproducible predictions.![alt text](image.png)
 * **Interactive Web App:** Streamlit dashboard for users to input patient features and receive real-time predictions.
 * **Visualizations & Interpretability:** Optional charts via **Plotly** to explore feature distributions, and **SHAP (TreeExplainer)** for global and localized feature importance.
 
