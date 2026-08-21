@@ -660,6 +660,12 @@ elif page == 'Insights':
                         
                         shap_values = np.array(shap_values, dtype=float)
                         
+                        import matplotlib as mpl
+                        mpl.rcParams['text.color'] = '#f8fafc'
+                        mpl.rcParams['axes.labelcolor'] = '#f8fafc'
+                        mpl.rcParams['xtick.color'] = '#f8fafc'
+                        mpl.rcParams['ytick.color'] = '#f8fafc'
+                        
                         fig, ax = plt.subplots(figsize=(10, 6))
                         fig.patch.set_alpha(0.0)
                         ax.set_facecolor('none')
