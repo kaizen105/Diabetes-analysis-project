@@ -504,6 +504,7 @@ elif page == 'Insights':
                 labels={'x': 'Age Group', 'y': 'Readmission Rate (%)'}
             )
             fig1.update_traces(marker_color='#e74c3c')
+            fig1.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='white')
             st.plotly_chart(fig1, use_container_width=True)
     
     with col2:
@@ -511,6 +512,7 @@ elif page == 'Insights':
             gender_counts = insights_df['gender'].value_counts()
             fig2 = px.pie(values=gender_counts.values, names=gender_counts.index, 
                           title="Patient Gender Distribution")
+            fig2.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='white')
             st.plotly_chart(fig2, use_container_width=True)
     
     col1, col2 = st.columns(2)
@@ -521,6 +523,7 @@ elif page == 'Insights':
                                 title="Distribution of Hospital Stay Length",
                                 nbins=14)
             fig3.update_traces(marker_color='#3498db')
+            fig3.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='white')
             st.plotly_chart(fig3, use_container_width=True)
     
     with col2:
@@ -530,6 +533,7 @@ elif page == 'Insights':
             fig4 = px.bar(insulin_readmit, 
                           title="Readmission Rate by Insulin Usage",
                           labels={'value': 'Percentage', 'index': 'Insulin Usage'})
+            fig4.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='white')
             st.plotly_chart(fig4, use_container_width=True)
     
     st.subheader("📈 Demographic Analysis")
@@ -541,6 +545,7 @@ elif page == 'Insights':
             fig5 = px.bar(x=race_counts.index, y=race_counts.values,
                           title="Patient Distribution by Race")
             fig5.update_traces(marker_color='#9b59b6')
+            fig5.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='white')
             st.plotly_chart(fig5, use_container_width=True)
     
     with col2:
@@ -549,6 +554,7 @@ elif page == 'Insights':
             fig6 = px.bar(x=admission_counts.index, y=admission_counts.values,
                           title="Admission Type Distribution")
             fig6.update_traces(marker_color='#f39c12')
+            fig6.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='white')
             st.plotly_chart(fig6, use_container_width=True)
             
     st.subheader("🧠 Model Feature Importance (SHAP)")
@@ -592,6 +598,14 @@ elif page == 'Insights':
                         shap_values = explainer.shap_values(X_sample)
                         
                         fig, ax = plt.subplots(figsize=(10, 6))
+                        fig.patch.set_alpha(0.0)
+                        ax.set_facecolor('none')
+                        ax.xaxis.label.set_color('white')
+                        ax.yaxis.label.set_color('white')
+                        ax.tick_params(colors='white')
+                        for spine in ax.spines.values():
+                            spine.set_edgecolor('white')
+                            
                         shap.summary_plot(shap_values, X_sample, show=False, max_display=15)
                         st.pyplot(fig)
                 except Exception as e:
