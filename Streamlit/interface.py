@@ -636,6 +636,18 @@ elif page == 'Insights':
                         # Convert to float to avoid any categorical/string plotting errors in matplotlib
                         X_sample = X_sample.astype(float)
                         
+                        # Patch XGBoost base_score to avoid SHAP TreeExplainer bug with array formats
+                        import json
+                        booster = xgb_model.get_booster()
+                        config = json.loads(booster.save_config())
+                        learner_param = config.get("learner", {}).get("learner_model_param", {})
+                        if "base_score" in learner_param:
+                            val = learner_param["base_score"]
+                            if isinstance(val, str) and val.startswith('[') and val.endswith(']'):
+                                config["learner"]["learner_model_param"]["base_score"] = val.strip('[]')
+                                booster.load_config(json.dumps(config))
+                        
+                        explainer = shap.TreeExplainer(xgb_model)
                         shap_values = explainer.shap_values(X_sample)
                         
                         # If shap_values is a list (multiclass or binary with two outputs), select the positive class
