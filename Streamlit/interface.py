@@ -71,6 +71,10 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         margin: 15px 0;
         border-left: 5px solid #f39c12;
+        min-height: 240px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     /* Metric Card */
@@ -590,16 +594,15 @@ elif page == 'Insights':
                         
                         # Use a small sample to avoid freezing the app
                         X_sample = X.sample(n=min(200, len(X)), random_state=42)
-                        # Ensure features match model
-                        if hasattr(model, 'feature_names_in_'):
-                            X_sample = X_sample[model.feature_names_in_]
-                        elif hasattr(xgb_model, 'feature_names_in_'):
-                            # If there's a preprocessing step in the pipeline, we transform first
+                        # Ensure features match model by transforming through the pipeline
+                        if len(model.steps) > 1:
                             preprocessor = model[:-1]
                             X_transformed = preprocessor.transform(X_sample)
                             if hasattr(X_transformed, 'toarray'):
                                 X_transformed = X_transformed.toarray()
                             X_sample = pd.DataFrame(X_transformed, columns=xgb_model.feature_names_in_)
+                        else:
+                            X_sample = X_sample[xgb_model.feature_names_in_]
                         
                         shap_values = explainer.shap_values(X_sample)
                         
