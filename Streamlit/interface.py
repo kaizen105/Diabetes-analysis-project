@@ -71,7 +71,10 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         margin: 15px 0;
         border-left: 5px solid #f39c12;
-        min-height: 280px;
+    }
+    
+    .home-info-card {
+        min-height: 250px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -214,7 +217,7 @@ if page == 'Home':
     col1, col2 = st.columns([2, 1])
     with col1:
         st.markdown("""
-        <div class="info-card">
+        <div class="info-card home-info-card">
             <h2 style="color: ##1f4e79;">Welcome to Diabetes Care and readmission center</h2>
             <p style="font-size: 1.1rem; line-height: 1.6;">
                 Our AI-powered platform helps healthcare providers and patients predict and prevent hospital readmissions 
@@ -231,7 +234,7 @@ if page == 'Home':
             readmit_30 = len(insights_df[insights_df['readmitted'] == '<30'])
             readmission_rate = (readmit_30 / total_encounters) * 100
             st.markdown(f"""
-            <div class="info-card">
+            <div class="info-card home-info-card">
                 <h4>📊 Dataset Overview</h4>
                 <p><strong>Total Encounters:</strong> {total_encounters:,}</p>
                 <p><strong>Unique Patients:</strong> {total_patients:,}</p>
@@ -333,6 +336,7 @@ elif page == 'Prediction':
             }
             age_val = st.select_slider('Age', options=list(age_map.values()), value=55)
             gender = st.selectbox('Gender', ['Male', 'Female'])
+            gender_code = 1 if gender == "Male" else 0
             
             st.markdown("### 🏥 Clinical Data")
             time_in_hospital = st.slider("Time in Hospital (days)", 1, 15, 3)
@@ -611,7 +615,14 @@ elif page == 'Insights':
                         else:
                             X_sample = X_sample[xgb_model.feature_names_in_]
                         
+                        # Convert to float to avoid any categorical/string plotting errors in matplotlib
+                        X_sample = X_sample.astype(float)
+                        
                         shap_values = explainer.shap_values(X_sample)
+                        
+                        # If shap_values is a list (multiclass or binary with two outputs), select the positive class
+                        if isinstance(shap_values, list) and len(shap_values) == 2:
+                            shap_values = shap_values[1]
                         
                         fig, ax = plt.subplots(figsize=(10, 6))
                         fig.patch.set_alpha(0.0)
