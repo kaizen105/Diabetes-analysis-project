@@ -39,7 +39,7 @@ st.markdown("""
         margin-top: 5px;
         margin-bottom: 50px;
         padding: 5px 15px;
-        background: #0003cc;
+        background: #14278b;
         border-radius: 0px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         position: relative;
@@ -56,7 +56,7 @@ st.markdown("""
         transition: all 0.3s ease;
         text-decoration: none;
         color: #f8fafc;
-        background: #0004ff;
+        background: #1b3c99;
     }
     .nav-button:hover {
         background: #3366ff;
@@ -64,18 +64,18 @@ st.markdown("""
     }
     /* Info Card */
     .info-card {
-        background: #0003cc;
+        background: #14278b;
         color: #f8fafc;
         padding: 20px;
         border-radius: 0px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         margin: 15px 0;
-        border-left: 5px solid #3366ff;
+        border-left: 5px solid #f39c12;
     }
 
     /* Metric Card */
     .metric-card {
-        background: #0003cc;
+        background: #14278b;
         color: #f8fafc;
         padding: 20px;
         border-radius: 0px;
@@ -97,17 +97,17 @@ st.markdown("""
 
     /* Risk Levels */
     .low-risk {
-        background: #0004ff;
+        background: #1b3c99;
         color: #a8e6cf;
         border-left: 5px solid #a8e6cf;
     }
     .medium-risk {
-        background: #0004ff;
+        background: #1b3c99;
         color: #ffd93d;
         border-left: 5px solid #ffd93d;
     }
     .high-risk {
-        background: #0004ff;
+        background: #1b3c99;
         color: #ff6b6b;
         border-left: 5px solid #ff6b6b;
     }
@@ -125,7 +125,7 @@ st.markdown("""
     display: flex;
     gap: 15px;
     padding: 8px 12px;
-    background: #000266;
+    background: #010931;
     border-radius: 0px;
     z-index: 999;
 }
@@ -137,7 +137,7 @@ st.markdown("""
     font-weight: 600;
     text-decoration: none;
     color: #f8fafc;
-    background: #0003cc;
+    background: #14278b;
     transition: all 0.3s ease;
     font-size: 0.95rem;
 }
@@ -482,13 +482,17 @@ elif page == 'Insights':
     avg_age = insights_df['age'].mode()[0]
     
     with col1:
-        st.metric("Total Encounters", f"{total_encounters:,}")
+        with st.container(height=120, border=True):
+            st.metric("Total Encounters", f"{total_encounters:,}")
     with col2:
-        st.metric("30-day Readmissions", f"{readmit_30:,}")
+        with st.container(height=120, border=True):
+            st.metric("30-day Readmissions", f"{readmit_30:,}")
     with col3:
-        st.metric("30-day Readmission Rate", f"{readmit_rate:.1f}%")
+        with st.container(height=120, border=True):
+            st.metric("30-day Readmission Rate", f"{readmit_rate:.1f}%")
     with col4:
-        st.metric("Avg Hospital Stay", f"{avg_stay:.1f} days")
+        with st.container(height=120, border=True):
+            st.metric("Avg Hospital Stay", f"{avg_stay:.1f} days")
     
     col1, col2 = st.columns(2)
     
@@ -593,6 +597,8 @@ elif page == 'Insights':
                             # If there's a preprocessing step in the pipeline, we transform first
                             preprocessor = model[:-1]
                             X_transformed = preprocessor.transform(X_sample)
+                            if hasattr(X_transformed, 'toarray'):
+                                X_transformed = X_transformed.toarray()
                             X_sample = pd.DataFrame(X_transformed, columns=xgb_model.feature_names_in_)
                         
                         shap_values = explainer.shap_values(X_sample)
