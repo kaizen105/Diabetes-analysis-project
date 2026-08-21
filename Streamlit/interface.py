@@ -353,6 +353,8 @@ elif page == 'Prediction':
             insulin = st.selectbox('Insulin Usage', ['No', 'Up', 'Down', 'Steady'])
             change = st.selectbox('Change in Medication?', ['Ch', 'No'])
             admission_type = st.selectbox('Admission Type', ['Emergency', 'Elective', 'Urgent', 'Other'])
+            admission_source = st.selectbox('Admission Source', ['Referral', 'Transferred from hospital', 'Other/Not Available'])
+            discharge_disposition = st.selectbox('Discharge Disposition', ['Discharged home', 'Transferred to another facility', 'Left AMA', 'Still patient/referred to this institution', 'Other/Not Available'])
             insurance = st.selectbox("Insurance/Payer", ["Medicare (MC)", "Other"])
 
         predict_button = st.form_submit_button("🔍 Predict Readmission Risk", type="primary")
@@ -419,8 +421,21 @@ elif page == 'Prediction':
             
         if change == 'No':
             patient['change_No'] = True
-        patient['admission_source_id_Referral'] = True # Example default for required fields
-        
+        if admission_source == 'Referral':
+            patient['admission_source_id_Referral'] = True
+        elif admission_source == 'Transferred from hospital':
+            patient['admission_source_id_Transferred from hospital'] = True
+        else:
+            patient['admission_source_id_Not Available'] = True
+
+        if discharge_disposition == 'Transferred to another facility':
+            patient['discharge_disposition_id_Transferred to another facility'] = True
+        elif discharge_disposition == 'Left AMA':
+            patient['discharge_disposition_id_Left AMA'] = True
+        elif discharge_disposition == 'Still patient/referred to this institution':
+            patient['discharge_disposition_id_Still patient/referred to this institution'] = True
+        elif discharge_disposition == 'Other/Not Available':
+            patient['discharge_disposition_id_Not Available'] = True
         # New model missing column defaults
         patient['max_glu_serum_Not Measured'] = True
         patient['A1Cresult_Not Measured'] = True
@@ -638,14 +653,18 @@ elif page == 'Insights':
                         
                         # Patch XGBoost base_score to avoid SHAP TreeExplainer bug with array formats
                         import json
+                        import re
                         booster = xgb_model.get_booster()
                         config = json.loads(booster.save_config())
                         learner_param = config.get("learner", {}).get("learner_model_param", {})
                         if "base_score" in learner_param:
                             val = learner_param["base_score"]
-                            if isinstance(val, str) and val.startswith('[') and val.endswith(']'):
-                                config["learner"]["learner_model_param"]["base_score"] = val.strip('[]')
+                            match = re.search(r'[-+]?\d*\.?\d+[eE]?[-+]?\d*', str(val))
+                            if match:
+                                clean_val = match.group()
+                                config["learner"]["learner_model_param"]["base_score"] = clean_val
                                 booster.load_config(json.dumps(config))
+                                xgb_model._Booster = booster
                         
                         explainer = shap.TreeExplainer(xgb_model)
                         shap_values = explainer.shap_values(X_sample)
