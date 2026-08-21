@@ -167,10 +167,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @st.cache_data
 def load_model_data():
-    """Load the ML-ready dataset from GitHub repo."""
+    """Load the ML-ready dataset from local file."""
     try:
-        url = "https://raw.githubusercontent.com/kaizen105/Diabetes-analysis-project/8eb4417d802bb66a0c8efff44f56a593d5b4ae15/datasets/diabetes_data_ml.csv"
-        df = pd.read_csv(url)
+        path = os.path.join(BASE_DIR, '../datasets/diabetes_data_ml.csv')
+        df = pd.read_csv(path)
         return df
     except Exception as e:
         st.error(f"❌ Error loading model data: {e}")
@@ -178,10 +178,10 @@ def load_model_data():
 
 @st.cache_data
 def load_insights_data():
-    """Load the insights dataset from GitHub repo."""
+    """Load the insights dataset from local file."""
     try:
-        url = "https://raw.githubusercontent.com/kaizen105/Diabetes-analysis-project/8eb4417d802bb66a0c8efff44f56a593d5b4ae15/datasets/diabetic_data_clean.csv"
-        df = pd.read_csv(url)
+        path = os.path.join(BASE_DIR, '../datasets/diabetic_data_clean.csv')
+        df = pd.read_csv(path)
         return df
     except Exception as e:
         st.error(f"❌ Error loading insights data: {e}")
@@ -590,12 +590,6 @@ elif page == 'Insights':
                     
                     X = model_df.drop('readmitted', axis=1) if 'readmitted' in model_df.columns else model_df
                     
-                    # Ensure X has all features expected by the model
-                    missing_cols = ['max_glu_serum_>300', 'max_glu_serum_Norm', 'max_glu_serum_Not Measured', 
-                                    'A1Cresult_>8', 'A1Cresult_Norm', 'A1Cresult_Not Measured']
-                    for col in missing_cols:
-                        if col not in X.columns:
-                            X[col] = True if 'Not Measured' in col else False
                     
                     # Extract XGBoost step and transform sample for SHAP
                     # We'll assume it's a pipeline and XGBClassifier is the last step
@@ -605,6 +599,14 @@ elif page == 'Insights':
                         # Or if we have simple one-hot encoding we can explain directly on it.
                         # Use a small sample to avoid freezing the app
                         X_sample = X.sample(n=min(200, len(X)), random_state=42)
+                        
+                        # Reorder columns to exactly match the model's expected input
+                        if hasattr(model, 'feature_names_in_'):
+                            missing_cols = [c for c in model.feature_names_in_ if c not in X_sample.columns]
+                            for c in missing_cols:
+                                X_sample[c] = False
+                            X_sample = X_sample[model.feature_names_in_]
+                        
                         # Ensure features match model by transforming through the pipeline
                         import scipy.sparse
                         import numpy as np
