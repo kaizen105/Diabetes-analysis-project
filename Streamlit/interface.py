@@ -39,7 +39,7 @@ st.markdown("""
         margin-top: 5px;
         margin-bottom: 50px;
         padding: 5px 15px;
-        background: #1e293b;
+        background: #0003cc;
         border-radius: 0px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         position: relative;
@@ -56,26 +56,26 @@ st.markdown("""
         transition: all 0.3s ease;
         text-decoration: none;
         color: #f8fafc;
-        background: #334155;
+        background: #0004ff;
     }
     .nav-button:hover {
-        background: #38bdf8;
+        background: #3366ff;
         box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
     }
     /* Info Card */
     .info-card {
-        background: #1e293b;
+        background: #0003cc;
         color: #f8fafc;
         padding: 20px;
         border-radius: 0px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         margin: 15px 0;
-        border-left: 5px solid #38bdf8;
+        border-left: 5px solid #3366ff;
     }
 
     /* Metric Card */
     .metric-card {
-        background: #1e293b;
+        background: #0003cc;
         color: #f8fafc;
         padding: 20px;
         border-radius: 0px;
@@ -97,17 +97,17 @@ st.markdown("""
 
     /* Risk Levels */
     .low-risk {
-        background: #334155;
+        background: #0004ff;
         color: #a8e6cf;
         border-left: 5px solid #a8e6cf;
     }
     .medium-risk {
-        background: #334155;
+        background: #0004ff;
         color: #ffd93d;
         border-left: 5px solid #ffd93d;
     }
     .high-risk {
-        background: #334155;
+        background: #0004ff;
         color: #ff6b6b;
         border-left: 5px solid #ff6b6b;
     }
@@ -125,7 +125,7 @@ st.markdown("""
     display: flex;
     gap: 15px;
     padding: 8px 12px;
-    background: #0f172a;
+    background: #000266;
     border-radius: 0px;
     z-index: 999;
 }
@@ -137,13 +137,13 @@ st.markdown("""
     font-weight: 600;
     text-decoration: none;
     color: #f8fafc;
-    background: #1e293b;
+    background: #0003cc;
     transition: all 0.3s ease;
     font-size: 0.95rem;
 }
 
 .top-nav a:hover {
-    background: #38bdf8;
+    background: #3366ff;
 }
 </style>
 
